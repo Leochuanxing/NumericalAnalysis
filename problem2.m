@@ -7,13 +7,13 @@ for i = 1:50
     simple_matrix(i, i) = even_eigen_values(i);
 end
 % Construt a simple 50*50 positive definite matrix
-% The eigen values are grouped into two clusters
-% one cluster is around 1. We use rand to generate
-% those eigen values. The other cluster is around 10
+% The eigen values are grouped into three clusters.
+% They are clustered around 1, 10 and 20.
 
-cluster1 = 0.5 + rand(1, 25);
-cluster2 = 9.5 + rand(1, 25);
-cluster_all = [cluster1, cluster2];
+cluster1 = 0.5 + rand(1, 20)*0.5;
+cluster2 = 9.5 + rand(1, 20)*0.5;
+cluster3 = 19.5 + rand(1, 10)* 0.5;
+cluster_all = [cluster1, cluster2, cluster3];
 simple_matrix_clustered = zeros(50);
 for i= 1:50
     simple_matrix_clustered(i, i) = cluster_all(i);
@@ -22,22 +22,26 @@ end
 [log_norm1, iteration1] = CG_standard(simple_matrix);
 [log_norm2, iteration2] = CG_standard(simple_matrix_clustered);
 
-plot(log_norm1, iteration1)
-plot(log_norm2, iteration2)
-% solve the problems with standard CG method
-% Lets iterate 50 times
-    function [log_norm, iteration] = CG_standard(A)
-        % create empty containers to contain the results
-        log_norm = zeros(1, 49);
-        iteration = 1:49;
-        b = ones(n, 1);
-        inverse_matrix = zeros(50);
-        for k = 1: 50
-            inverse_matrix(k,k) = 1/(A(k,k));
-        end
-        exact_solution = inverse_matrix * b;
+% plot the figures
+figure
+plot(iteration1, log_norm1, iteration2, log_norm2)
+title('Performance of CG for different distributions of eigenvalues')
+xlabel('Number of iterations')
+ylabel('log(||x-x*||_A^2)')
+legend({'Evenly distributed eigenvalues', 'Clustered eigenvalues'},...
+        'Location', 'southwest')
 
-        x=zeros(n, 1);
+% Solve the problems with standard CG method
+% The number of iteration is 6.
+    function [log_norm, iteration] = CG_standard(A)
+        % Create empty containers to contain the results
+        b = ones(50, 1);
+
+        exact_solution = A\b;
+
+        log_norm = zeros(1, 6);
+        iteration = 1:6;
+        x=zeros(50, 1);
         r = A*x - b;
         p = -r;
         for j = iteration
@@ -48,7 +52,7 @@ plot(log_norm2, iteration2)
             beta = (r' * r)/(r_temp' * r_temp);
             p = -r + beta * p;
             
-            log_norm(j)= log(x' * A * exact_solution);
+            log_norm(j)= log((x-exact_solution)' * A * (x-exact_solution));
         end
     end
 end
