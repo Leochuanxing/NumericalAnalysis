@@ -29,11 +29,11 @@ while grad_norm_square  >= termination
     % lets set the initial value of alpha as 1
     alpha = initial_alpha;
     x_cell = num2cell(x + alpha.* p);
-    alpha_iter = 0;
+%     alpha_iter = 0;
     while feval(f, x_cell{:}) > y + c.*alpha.*pre_grad_f * p'
         alpha = alpha*rho;
         x_cell = num2cell(x + alpha.* p);
-        alpha_iter = alpha_iter + 1;
+%         alpha_iter = alpha_iter + 1;
     end
     % We add the following block to adjust the initial_alpha
     % This block can speed up the searching by a magnitude.
